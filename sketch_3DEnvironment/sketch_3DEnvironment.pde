@@ -4,8 +4,9 @@ Robot rbt;
 boolean skipFrame;
 
 //color pallette
-color black = #000000;
-color white = #FFFFFF;
+color black = #000000; // glowstone
+color white = #FFFFFF; //empty space
+color dullBlue = #7092BE; // quartz
 
 //map variables
 int gridSize;
@@ -23,7 +24,7 @@ void setup() {
   textureMode(NORMAL);
   wkey = akey = skey = dkey = false;
   eyeX = width/2;
-  eyeY = height/2;
+  eyeY = height/1.15;
   eyeZ = 0;
   focusX = width/2;
   focusY = height/2;
@@ -59,31 +60,31 @@ void setup() {
 
 
 void draw() {
+  pointLight(230,230,230,eyeX,eyeY,eyeZ);
+  
   background(0);
+  
   camera(eyeX, eyeY, eyeZ, focusX, focusY, focusZ, upX, upY, upZ);
-  drawFloor();
+  
+  drawFloor(-2000,2000,height,100);//floor
+  drawFloor(-2000,2000,height-gridSize*4,100);//ceiling
   drawFocalPoint();
   controlCamera();
   drawMap();
-  
-  texturedCube(width/1.5, height/2, 0, quartz, 100);
-  texturedCube(width/1.5, height/4, 0, obsidian, 100);
-  texturedCube(width/3, height/2, 0, glowstone, 100);
-  texturedCube(width/3, height/4, 0, TNTtop, TNTside, TNTbottom, 100);
-  
 }
 
 void drawMap() {
   for (int x = 0; x < map.width; x++) {
     for (int y = 0; y < map.height; y++) {
       color c = map.get(x, y);
-      if (c != white) {
-        texturedCube(gridSize,height,gridSize,obsidian,100);//6 min 44 seconds in
-        //fill(c);
-        //stroke(100);
-        //translate(x*gridSize-2000, height/2, y*gridSize-2000);
-        //box(gridSize, height, gridSize);
-        //popMatrix();
+      if (c == dullBlue) {
+        texturedCube(x*gridSize-2000, height-gridSize, y*gridSize-2000, quartz, gridSize);
+        texturedCube(x*gridSize-2000, height-gridSize*2, y*gridSize-2000, quartz, gridSize);
+        texturedCube(x*gridSize-2000, height-gridSize*3, y*gridSize-2000, quartz, gridSize);
+      } if (c == black) {
+        texturedCube(x*gridSize-2000, height-gridSize, y*gridSize-2000, glowstone, gridSize);
+        texturedCube(x*gridSize-2000, height-gridSize*2, y*gridSize-2000, glowstone, gridSize);
+        texturedCube(x*gridSize-2000, height-gridSize*3, y*gridSize-2000, glowstone, gridSize);
       }
     }
   }
@@ -96,11 +97,18 @@ void drawFocalPoint() {
   popMatrix();
 }
 
-void drawFloor() {
+void drawFloor(int start, int end, int level, int gap) {
   stroke(255);
-  for (int x = -2000; x <= 2000; x = x + 100) {
-    line(x, height, -2000, x, height, 2000);
-    line(-2000, height, x, 2000, height, x);
+  strokeWeight(1);
+  int x = start;
+  int z = start;
+  while (z < end){
+    texturedCube(x, level, z, obsidian, gap);
+    x = x + gap;
+    if (x == end){
+      x = start;
+      z = z + gap;
+    }
   }
 }
 
@@ -124,8 +132,8 @@ void controlCamera() {
   }
 
   if (skipFrame == false) {
-    leftRightHeadAngle = leftRightHeadAngle + (mouseX - pmouseX)*0.002;//
-    upDownHeadAngle = upDownHeadAngle + (mouseY - pmouseY)*0.002;
+    leftRightHeadAngle = leftRightHeadAngle + (mouseX - pmouseX)*0.001;//
+    upDownHeadAngle = upDownHeadAngle + (mouseY - pmouseY)*0.001;
   }
 
   if (upDownHeadAngle > PI/2.5) upDownHeadAngle = PI/2.5;
